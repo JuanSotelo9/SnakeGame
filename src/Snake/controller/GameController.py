@@ -1,14 +1,12 @@
-import pygame, sys, random, os, pickle
+import pickle
+import random
 
-# Obtener la ruta del directorio raíz del proyecto (Snake)
-projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import pygame
 
-# Agregar la ruta del directorio raíz al principio de sys.path
-sys.path.insert(0, projectRoot)
-
+from controller.GameControllerInterface import GameControllerInterface
 from model.Body import Body
 from model.Fruit import Fruit
-from GameControllerInterface import GameControllerInterface
+from paths import data_path, image_path, sound_path
 
 class GameController(GameControllerInterface):
     def __init__(self, view, audio):
@@ -20,11 +18,11 @@ class GameController(GameControllerInterface):
         """
         self.view = view
         self.audio = audio
-        self.speedGame = 5 # Guardar
+        self.speedGame = 10 # Guardar
         self.sizeSprite = 20
         self.speedX = 0 
         self.speedY = 0 
-        self.head = Body(200, 200, "images\head.png")
+        self.head = Body(200, 200, image_path("head.png"))
         self.existsFruit = False
         self.fruitPosX = -1 # Guardar
         self.fruitPosY = -1 # Guardar
@@ -48,7 +46,7 @@ class GameController(GameControllerInterface):
         self.speedGame = 5
         self.speedX = 0
         self.speedY = 0
-        self.head = Body(220, 280, "images\head.png")
+        self.head = Body(220, 280, image_path("head.png"))
         self.existsFruit = False
         self.fruitPosX = -1
         self.fruitPosY = -1
@@ -71,7 +69,7 @@ class GameController(GameControllerInterface):
             if(self.head.rect.x == self.fruitPosX and self.head.rect.y == self.fruitPosY):
 
                 # Crea una nueva parte del cuerpo
-                self.audio.repSound(pygame.mixer.Sound("sounds/comer.mp3"))
+                self.audio.repSound(pygame.mixer.Sound(sound_path("comer.mp3")))
                 self.addBody()
                 self.existsFruit = False  
 
@@ -79,7 +77,7 @@ class GameController(GameControllerInterface):
             if(self.existsFruit == False):
 
                 # Se crea una nueva fruta
-                self.fruit.add(self.createFruit("images/fruit1.png"))
+                self.fruit.add(self.createFruit(image_path("fruit1.png")))
                 self.existsFruit = True     
 
             # Mueve el Snake
@@ -100,7 +98,7 @@ class GameController(GameControllerInterface):
         if(not self.key):
             if((event.key == pygame.K_DOWN or event.key == pygame.K_s) and self.speedY != -1*self.sizeSprite):
                 self.speedY = self.sizeSprite
-                self. speedX = 0
+                self.speedX = 0
                 self.key = True
             if((event.key == pygame.K_UP or event.key == pygame.K_w) and self.speedY != self.sizeSprite):
                 self.speedY = -1*self.sizeSprite
@@ -121,7 +119,7 @@ class GameController(GameControllerInterface):
         """
         part = self.parts[-1]
         speed = part.getSpeed()
-        bodyimg = "images/body.png"
+        bodyimg = image_path("body.png")
         if(speed[0] == 0):
             if(speed[1] == self.sizeSprite):
                 body = Body(part.rect.x, part.rect.y - self.sizeSprite, bodyimg)
@@ -199,19 +197,22 @@ class GameController(GameControllerInterface):
         data = {'snake' : snake, 'speedGame' : self.speedGame, 'fruitPosX' : self.fruitPosX, 
                 'fruitPosY' : self.fruitPosY, 'contFruit' : self.contFruit, 'score' : self.score}
         
-        file = 'data/save_game.pkl'
+        file = data_path("save_game.pkl")
 
         with open(file, "wb") as f:
             pickle.dump(data,f)
 
     def loadGame(self):
 
-        file = "data/save_game.pkl"
+        file = data_path("save_game.pkl")
 
-        with open(file, 'rb') as f:
+        try:
+            with open(file, 'rb') as f:
+                data = pickle.load(f)
+        except (FileNotFoundError, KeyError, pickle.UnpicklingError):
+            self.newGame()
+            return
 
-            data = pickle.load(f)
-        
         self.gameOver = False
         self.speedGame = data['speedGame']
         self.existsFruit = True
@@ -223,7 +224,7 @@ class GameController(GameControllerInterface):
         self.parts.clear()
         self.fruit.remove(self.fruit)
         self.snake.remove(self.snake)
-        self.fruit.add(Fruit(self.fruitPosX, self.fruitPosY, "images/fruit1.png"))
+        self.fruit.add(Fruit(self.fruitPosX, self.fruitPosY, image_path("fruit1.png")))
         snake = data['snake']
 
         for key in snake:
@@ -231,12 +232,12 @@ class GameController(GameControllerInterface):
             if(key == 0):
                 self.speedX = part[0]
                 self.speedY = part[1]
-                self.head = Body(part[2], part[3], "images/head.png")
+                self.head = Body(part[2], part[3], image_path("head.png"))
                 self.head.setSpeed(part[0], part[1])
                 self.parts.append(self.head)
                 self.snake.add(self.head)
             else:
-                body = Body(part[2], part[3], "images/body.png")
+                body = Body(part[2], part[3], image_path("body.png"))
                 body.setSpeed(part[0], part[1])
                 self.parts.append(body)
                 self.snake.add(body)

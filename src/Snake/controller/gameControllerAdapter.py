@@ -1,15 +1,13 @@
-import pygame, sys, os, pickle, random
+import pickle
+import random
 
-# Obtener la ruta del directorio raíz del proyecto (Snake)
-projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import pygame
 
-# Agregar la ruta del directorio raíz al principio de sys.path
-sys.path.insert(0, projectRoot)
-
-from model.Wall import Wall
+from controller.GameController import GameController
 from model.Body import Body
 from model.Fruit import Fruit
-from GameController import GameController
+from model.Wall import Wall
+from paths import data_path, image_path, sound_path
 
 class GameControllerAdapter:
 
@@ -49,7 +47,7 @@ class GameControllerAdapter:
             if(self.gameController.head.rect.x == self.gameController.fruitPosX and 
                self.gameController.head.rect.y == self.gameController.fruitPosY):
                 # Crea una nueva parte del cuerpo
-                self.audio.repSound(pygame.mixer.Sound("sounds/comer.mp3"))
+                self.audio.repSound(pygame.mixer.Sound(sound_path("comer.mp3")))
                 self.gameController.addBody()
                 if(self.gameController.contFruit % 2 == 0):
                     self.createWall()
@@ -87,7 +85,7 @@ class GameControllerAdapter:
             if(not self.key):
                 if((event.key == pygame.K_DOWN or event.key == pygame.K_s) and self.gameController.speedY != self.gameController.sizeSprite):
                     self.gameController.speedY = -1*self.gameController.sizeSprite
-                    self.gameController. speedX = 0
+                    self.gameController.speedX = 0
                     self.key = True
                 if((event.key == pygame.K_UP or event.key == pygame.K_w) and self.gameController.speedY != -1*self.gameController.sizeSprite):
                     self.gameController.speedY = self.gameController.sizeSprite
@@ -114,7 +112,7 @@ class GameControllerAdapter:
             self.wallPosY = random.randint(4,23)*20
             if(self.itsAvailableWall(self.wallPosX, self.wallPosY) == True):
                 break;
-        wall = Wall(self.wallPosX, self.wallPosY, "images/Wall.png")
+        wall = Wall(self.wallPosX, self.wallPosY, image_path("wall.png"))
         self.walls.append(wall)
         self.wallSprites.add(wall)
         self.contWall += 1
@@ -148,7 +146,7 @@ class GameControllerAdapter:
 
     def createFruit(self) -> Fruit:
         self.chooseFruit = self.chooseFruits()
-        fruit = "images/"+self.chooseFruit+".png"
+        fruit = image_path(f"{self.chooseFruit}.png")
         while True:
             aux = self.gameController.createFruit(fruit)
             if(self.itsAvailable(self.gameController.fruitPosX, self.gameController.fruitPosY)):
@@ -207,9 +205,8 @@ class GameControllerAdapter:
         snake = {}
         wallsG = {}
         index = 0
-        for self.gameController.part in self.gameController.parts:
-            snake[index] = [self.gameController.part.speedx, self.gameController.part.speedy, 
-                            self.gameController.part.rect.x, self.gameController.part.rect.y]
+        for part in self.gameController.parts:
+            snake[index] = [part.speedx, part.speedy, part.rect.x, part.rect.y]
             index += 1
 
         index = 0
@@ -221,18 +218,21 @@ class GameControllerAdapter:
                 'fruitPosY' : self.gameController.fruitPosY, 'contFruit' : self.gameController.contFruit, 
                 'score' : self.gameController.score, 'wallsG' : wallsG, 'contWall' : self.contWall, 'fruitType' : self.fruitType}
         
-        file = 'data/save_game2.0.pkl'
+        file = data_path("save_game2.0.pkl")
 
         with open(file, "wb") as f:
             pickle.dump(data,f)
 
     def loadGame(self):
-        file = "data/save_game2.0.pkl"
+        file = data_path("save_game2.0.pkl")
 
-        with open(file, 'rb') as f:
+        try:
+            with open(file, 'rb') as f:
+                data = pickle.load(f)
+        except (FileNotFoundError, KeyError, pickle.UnpicklingError):
+            self.newGame()
+            return
 
-            data = pickle.load(f)
-        
         self.gameOver = False
         self.gameController.speedGame = data['speedGame']
         self.gameController.existsFruit = True
@@ -245,7 +245,7 @@ class GameControllerAdapter:
         self.gameController.parts.clear()
         self.gameController.fruit.remove(self.gameController.fruit)
         self.gameController.snake.remove(self.gameController.snake)
-        self.gameController.fruit.add(Fruit(self.gameController.fruitPosX, self.gameController.fruitPosY, "images/fruit1.png"))
+        self.gameController.fruit.add(Fruit(self.gameController.fruitPosX, self.gameController.fruitPosY, image_path("fruit1.png")))
         snake = data['snake']
         wallsG = data['wallsG']
         self.fruitType = data['fruitType']
@@ -255,17 +255,17 @@ class GameControllerAdapter:
             if(key == 0):
                 self.gameController.speedX = part[0]
                 self.gameController.speedY = part[1]
-                self.gameController.head = Body(part[2], part[3], "images/head.png")
+                self.gameController.head = Body(part[2], part[3], image_path("head.png"))
                 self.gameController.head.setSpeed(part[0], part[1])
                 self.gameController.parts.append(self.gameController.head)
                 self.gameController.snake.add(self.gameController.head)
             else:
-                body = Body(part[2], part[3], "images/body.png")
+                body = Body(part[2], part[3], image_path("body.png"))
                 body.setSpeed(part[0], part[1])
                 self.gameController.parts.append(body)
                 self.gameController.snake.add(body)
         
         for key in wallsG:
-            wall = Wall(wallsG[key][0], wallsG[key][1], "images/Wall.png")
+            wall = Wall(wallsG[key][0], wallsG[key][1], image_path("wall.png"))
             self.walls.append(wall)
             self.wallSprites.add(wall)

@@ -1,15 +1,13 @@
-import pygame, sys, os, pickle
+import pickle
+import sys
 
-# Obtener la ruta del directorio raíz del proyecto (Snake)
-projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import pygame
 
-# Agregar la ruta del directorio raíz al principio de sys.path
-sys.path.insert(0, projectRoot)
-
+from controller.AudioController import AudioController
+from controller.GameController import GameController
+from controller.gameControllerAdapter import GameControllerAdapter
 from model.Button import Button
-from GameController import GameController
-from AudioController import AudioController
-from gameControllerAdapter import GameControllerAdapter
+from paths import data_path, image_path, sound_path
 
 class Controller:
 
@@ -21,8 +19,8 @@ class Controller:
         self.adapter = GameControllerAdapter(self.gameController)
         self.game = None
         self.menu = True
-        self.musicMenu = "sounds\menu-music-28480.mp3"
-        self.musicGame = "sounds\8bit-sample-69080.mp3"
+        self.musicMenu = sound_path("menu-music-28480.mp3")
+        self.musicGame = sound_path("8bit-sample-69080.mp3")
         self.buttons = pygame.sprite.Group()
         self.scores = [0] * 5
 
@@ -37,11 +35,11 @@ class Controller:
 
             # Creacion de los botones del menú
             self.buttons.remove(self.buttons)
-            buttonPlay = Button(100, 148, "images/btn_play1.png", 255, 69)
-            buttonPlay2 = Button(100, 232, "images/btn_play2.png", 255, 69)
-            buttonLoad = Button(100, 316, "images/btn_load.png", 255, 69)
-            buttonScore = Button(100, 400, "images/btn_score.png", 255, 69)
-            buttonCredits = Button(100, 484, "images/btn_credits.png", 255, 69)
+            buttonPlay = Button(100, 148, image_path("btn_play1.png"), 255, 69)
+            buttonPlay2 = Button(100, 232, image_path("btn_play2.png"), 255, 69)
+            buttonLoad = Button(100, 316, image_path("btn_load.png"), 255, 69)
+            buttonScore = Button(100, 400, image_path("btn_score.png"), 255, 69)
+            buttonCredits = Button(100, 484, image_path("btn_credits.png"), 255, 69)
             self.buttons.add([buttonPlay, buttonPlay2, buttonLoad, buttonScore, buttonCredits])
             
             # Escucha si el mouse esta sobre algun boton
@@ -66,7 +64,7 @@ class Controller:
                             self.game.newGame()
                             self.startGame()
                         elif 232 <= mouse_pos[1] < 301:
-                            # Iniciar nuevo juago modo 2.0
+                            # Iniciar nuevo juego modo 2.0
                             self.game = self.adapter
                             self.game.newGame()
                             self.startGame()
@@ -91,7 +89,7 @@ class Controller:
             if(event.type == pygame.QUIT):
                 self.closeGame()
             if(event.type == pygame.KEYDOWN):
-                # Eschucha si se puso en pausa
+                # Escucha si se puso en pausa
                 if(event.key == pygame.K_ESCAPE):
                     self.game.paused = True
 
@@ -123,7 +121,7 @@ class Controller:
         pygame.mixer.music.stop()
         if(self.game.gameOver == True):
             self.updateScores(self.gameController.score)
-            self.audio.repSound(pygame.mixer.Sound("sounds/gameOver.mp3"))   
+            self.audio.repSound(pygame.mixer.Sound(sound_path("gameOver.mp3")))   
 
         while not self.menu:
             
@@ -134,14 +132,14 @@ class Controller:
     def handlePausedEvents(self):
 
         """
-            Este metodo se encarva del manejo de los eventos del menu de pausa
+            Este metodo se encarga del manejo de los eventos del menu de pausa
         """
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonResume = Button(91, 163, "images/btn_continue.png", 280, 69)
-        buttonSave = Button(91, 252, "images/btn_save.png", 280, 69)
-        buttonMenu = Button(91, 341, "images/btn_menu.png", 280, 69)
+        buttonResume = Button(91, 163, image_path("btn_continue.png"), 280, 69)
+        buttonSave = Button(91, 252, image_path("btn_save.png"), 280, 69)
+        buttonMenu = Button(91, 341, image_path("btn_menu.png"), 280, 69)
         
         self.buttons.add([buttonResume, buttonSave, buttonMenu])
     
@@ -154,7 +152,7 @@ class Controller:
 
         # Escucha los eventos del teclado
         for event in pygame.event.get():
-            #Cierra el jeugo
+            #Cierra el juego
             if event.type == pygame.QUIT:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -175,13 +173,13 @@ class Controller:
 
     def handleGameOverEvents(self):
         """
-            Este metodo se encarva del manejo de los eventos del menu de pausa
+            Este metodo se encarga del manejo de los eventos del menu de pausa
         """
 
         # Creacion de los botones del GameOver
         self.buttons.remove(self.buttons)
-        buttonYes = Button(33, 375, "images/btn_yes.png", 187, 69)
-        buttonNo = Button(241, 375, "images/btn_no.png", 187, 69)
+        buttonYes = Button(33, 375, image_path("btn_yes.png"), 187, 69)
+        buttonNo = Button(241, 375, image_path("btn_no.png"), 187, 69)
         self.buttons.add([buttonYes, buttonNo])
             
         # Escucha si el mouse esta sobre algun boton
@@ -215,9 +213,9 @@ class Controller:
     def handleLoadEvents(self):
         #Creacion de los botones del Load
         self.buttons.remove(self.buttons)
-        buttonLoad1 = Button(91, 120, "images/btn_play1.png", 255, 69)
-        buttonLoad2 = Button(91, 209, "images/btn_play2.png", 255, 69)
-        buttonBack = Button(91, 298, "images/btn_back.png", 255, 69)
+        buttonLoad1 = Button(91, 120, image_path("btn_play1.png"), 255, 69)
+        buttonLoad2 = Button(91, 209, image_path("btn_play2.png"), 255, 69)
+        buttonBack = Button(91, 298, image_path("btn_back.png"), 255, 69)
         self.buttons.add([buttonLoad1, buttonLoad2, buttonBack])
 
         
@@ -256,12 +254,12 @@ class Controller:
 
     def handleScoresEvents(self):
         """
-            Este metodo se encarva del manejo de los eventos del menu de scores
+            Este metodo se encarga del manejo de los eventos del menu de scores
         """
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonBack = Button(104, 413, "images/btn_back.png", 255, 69)
+        buttonBack = Button(104, 413, image_path("btn_back.png"), 255, 69)
         
         self.buttons.add([buttonBack])
 
@@ -297,12 +295,12 @@ class Controller:
 
     def showCredits(self): 
         """
-            Este metodo se encarva del manejo de los eventos del menu de scores
+            Este metodo se encarga del manejo de los eventos del menu de scores
         """
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonBack = Button(104, 413, "images/btn_back.png", 255, 69)
+        buttonBack = Button(104, 413, image_path("btn_back.png"), 255, 69)
         
         self.buttons.add([buttonBack])
 
@@ -335,19 +333,21 @@ class Controller:
     def saveScores(self):
         data = {'scores' : self.scores}
 
-        file = 'data/scores.pkl'
+        file = data_path("scores.pkl")
 
         with open(file, 'wb') as f:
             pickle.dump(data, f)
 
     def loadScores(self):
 
-        file = 'data/scores.pkl'
+        file = data_path("scores.pkl")
 
-        with open(file, 'rb') as f:
-            data = pickle.load(f)
-
-        self.scores = data['scores']
+        try:
+            with open(file, 'rb') as f:
+                data = pickle.load(f)
+            self.scores = data['scores']
+        except (FileNotFoundError, KeyError, pickle.UnpicklingError):
+            self.scores = [0] * 5
 
     def updateScores(self, new_score):
         """
