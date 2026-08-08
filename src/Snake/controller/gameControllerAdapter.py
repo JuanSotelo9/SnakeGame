@@ -3,6 +3,17 @@ import random
 
 import pygame
 
+from config import (
+    BOARD_MAX_COL,
+    BOARD_MAX_ROW,
+    BOARD_MIN_COL,
+    BOARD_MIN_ROW,
+    FRUIT_PROBABILITIES,
+    SCORE_PER_FRUIT,
+    SPRITE_SIZE,
+    WALL_EVERY,
+    WALL_MIN_DISTANCE,
+)
 from controller.GameController import GameController
 from model.Body import Body
 from model.Fruit import Fruit
@@ -49,13 +60,13 @@ class GameControllerAdapter:
                 # Crea una nueva parte del cuerpo
                 self.audio.repSound(pygame.mixer.Sound(sound_path("comer.mp3")))
                 self.gameController.addBody()
-                if(self.gameController.contFruit % 2 == 0):
+                if(self.gameController.contFruit % WALL_EVERY == 0):
                     self.createWall()
                 if(self.chooseFruit == "fruit1"):
                     self.fruitType = 1
                 elif(self.chooseFruit == "fruit2"):
                     self.fruitType = 2
-                    self.gameController.score += 1*self.gameController.speedGame
+                    self.gameController.score += SCORE_PER_FRUIT*self.gameController.speedGame
                 elif(self.chooseFruit == "fruit3"):
                     self.fruitType = 3
                 elif(self.chooseFruit == "fruit4"):
@@ -108,8 +119,8 @@ class GameControllerAdapter:
             Este metodo se encarga de crear un muro
         """
         while(True):
-            self.wallPosX = random.randint(1,21)*20
-            self.wallPosY = random.randint(4,23)*20
+            self.wallPosX = random.randint(BOARD_MIN_COL, BOARD_MAX_COL)*SPRITE_SIZE
+            self.wallPosY = random.randint(BOARD_MIN_ROW, BOARD_MAX_ROW)*SPRITE_SIZE
             if(self.itsAvailableWall(self.wallPosX, self.wallPosY) == True):
                 break;
         wall = Wall(self.wallPosX, self.wallPosY, image_path("wall.png"))
@@ -126,7 +137,7 @@ class GameControllerAdapter:
         headPosY = self.gameController.head.rect.y // self.gameController.sizeSprite
         wallPosX = x // self.gameController.sizeSprite
         wallPosY = y // self.gameController.sizeSprite
-        if(abs(headPosX - wallPosX) < 10 and abs(headPosY - wallPosY) < 10):
+        if(abs(headPosX - wallPosX) < WALL_MIN_DISTANCE and abs(headPosY - wallPosY) < WALL_MIN_DISTANCE):
             return False
         
         for wall in self.walls:
@@ -168,12 +179,7 @@ class GameControllerAdapter:
     def chooseFruits(self):
         randomNum = random.uniform(0, 1)
 
-        probabilities = {
-            "fruit1": 0.75,
-            "fruit2": 0.15,
-            "fruit3": 0.01,
-            "fruit4": 0.09
-        }
+        probabilities = FRUIT_PROBABILITIES
 
         lower_limit = 0
 

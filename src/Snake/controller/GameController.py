@@ -3,6 +3,19 @@ import random
 
 import pygame
 
+from config import (
+    BOARD_MAX_COL,
+    BOARD_MAX_ROW,
+    BOARD_MIN_COL,
+    BOARD_MIN_ROW,
+    INITIAL_SPEED,
+    MAX_SPEED,
+    SCORE_PER_FRUIT,
+    SPEED_UP_EVERY,
+    SPRITE_SIZE,
+    START_HEAD_X,
+    START_HEAD_Y,
+)
 from controller.GameControllerInterface import GameControllerInterface
 from model.Body import Body
 from model.Fruit import Fruit
@@ -18,11 +31,11 @@ class GameController(GameControllerInterface):
         """
         self.view = view
         self.audio = audio
-        self.speedGame = 10 # Guardar
-        self.sizeSprite = 20
+        self.speedGame = INITIAL_SPEED # Guardar
+        self.sizeSprite = SPRITE_SIZE
         self.speedX = 0 
         self.speedY = 0 
-        self.head = Body(200, 200, image_path("head.png"))
+        self.head = Body(START_HEAD_X, START_HEAD_Y, image_path("head.png"))
         self.existsFruit = False
         self.fruitPosX = -1 # Guardar
         self.fruitPosY = -1 # Guardar
@@ -43,10 +56,10 @@ class GameController(GameControllerInterface):
             Este metodo inicializa los valores para una nueva partida
         """
         self.gameOver = False
-        self.speedGame = 5
+        self.speedGame = INITIAL_SPEED
         self.speedX = 0
         self.speedY = 0
-        self.head = Body(220, 280, image_path("head.png"))
+        self.head = Body(START_HEAD_X, START_HEAD_Y, image_path("head.png"))
         self.existsFruit = False
         self.fruitPosX = -1
         self.fruitPosY = -1
@@ -133,8 +146,8 @@ class GameController(GameControllerInterface):
         self.parts.append(body)
         self.snake.add(body)
         self.contFruit += 1
-        self.score += (1*self.speedGame)
-        if(self.contFruit % 15 == 0 and self.contFruit != 0 and self.speedGame < 15): 
+        self.score += (SCORE_PER_FRUIT*self.speedGame)
+        if(self.contFruit % SPEED_UP_EVERY == 0 and self.contFruit != 0 and self.speedGame < MAX_SPEED): 
             self.speedGame += 1
 
     def createFruit(self, typeFruit) -> Fruit:
@@ -142,8 +155,8 @@ class GameController(GameControllerInterface):
             Este metodo se encarga de crear una fruta
         """
         while(True):
-            self.fruitPosX = random.randint(1,21)*20
-            self.fruitPosY = random.randint(4,23)*20
+            self.fruitPosX = random.randint(BOARD_MIN_COL, BOARD_MAX_COL)*SPRITE_SIZE
+            self.fruitPosY = random.randint(BOARD_MIN_ROW, BOARD_MAX_ROW)*SPRITE_SIZE
             if(self.itsAvailable(self.fruitPosX, self.fruitPosY) == True):
                 break;
         return Fruit(self.fruitPosX, self.fruitPosY, typeFruit)
@@ -177,7 +190,7 @@ class GameController(GameControllerInterface):
         """
             Este metodo revisa si hubo game over
         """
-        if(self.head.rect.x < 20 or self.head.rect.x > 420 or self.head.rect.y < 80 or self.head.rect.y > 460):
+        if(self.head.rect.x < SPRITE_SIZE or self.head.rect.x > BOARD_MAX_COL * SPRITE_SIZE or self.head.rect.y < BOARD_MIN_ROW * SPRITE_SIZE or self.head.rect.y > BOARD_MAX_ROW * SPRITE_SIZE):
             return True
         else:
             for part in self.parts:

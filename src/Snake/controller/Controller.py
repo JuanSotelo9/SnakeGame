@@ -3,6 +3,23 @@ import sys
 
 import pygame
 
+from config import (
+    BTN_BACK,
+    BTN_GAMEOVER_NO,
+    BTN_GAMEOVER_YES,
+    BTN_LOAD_1,
+    BTN_LOAD_2,
+    BTN_LOAD_BACK,
+    BTN_MENU_CREDITS,
+    BTN_MENU_LOAD,
+    BTN_MENU_PLAY,
+    BTN_MENU_PLAY2,
+    BTN_MENU_SCORE,
+    BTN_PAUSE_MENU,
+    BTN_PAUSE_RESUME,
+    BTN_PAUSE_SAVE,
+    MAX_SCORES,
+)
 from controller.AudioController import AudioController
 from controller.GameController import GameController
 from controller.gameControllerAdapter import GameControllerAdapter
@@ -22,7 +39,11 @@ class Controller:
         self.musicMenu = sound_path("menu-music-28480.mp3")
         self.musicGame = sound_path("8bit-sample-69080.mp3")
         self.buttons = pygame.sprite.Group()
-        self.scores = [0] * 5
+        self.scores = [0] * MAX_SCORES
+
+    def _create_button(self, layout, image_name):
+        x, y, width, height = layout
+        return Button(x, y, image_path(image_name), width, height)
 
     def handleMenuEvents(self):
         """
@@ -35,11 +56,11 @@ class Controller:
 
             # Creacion de los botones del menú
             self.buttons.remove(self.buttons)
-            buttonPlay = Button(100, 148, image_path("btn_play1.png"), 255, 69)
-            buttonPlay2 = Button(100, 232, image_path("btn_play2.png"), 255, 69)
-            buttonLoad = Button(100, 316, image_path("btn_load.png"), 255, 69)
-            buttonScore = Button(100, 400, image_path("btn_score.png"), 255, 69)
-            buttonCredits = Button(100, 484, image_path("btn_credits.png"), 255, 69)
+            buttonPlay = self._create_button(BTN_MENU_PLAY, "btn_play1.png")
+            buttonPlay2 = self._create_button(BTN_MENU_PLAY2, "btn_play2.png")
+            buttonLoad = self._create_button(BTN_MENU_LOAD, "btn_load.png")
+            buttonScore = self._create_button(BTN_MENU_SCORE, "btn_score.png")
+            buttonCredits = self._create_button(BTN_MENU_CREDITS, "btn_credits.png")
             self.buttons.add([buttonPlay, buttonPlay2, buttonLoad, buttonScore, buttonCredits])
             
             # Escucha si el mouse esta sobre algun boton
@@ -57,27 +78,26 @@ class Controller:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Escucha si el usuario presiono algun boton
                     mouse_pos = pygame.mouse.get_pos()
-                    if 100 <= mouse_pos[0] < 355:
-                        if 148 <= mouse_pos[1] < 217:
-                            # Iniciar nuevo juego
-                            self.game = self.gameController
-                            self.game.newGame()
-                            self.startGame()
-                        elif 232 <= mouse_pos[1] < 301:
-                            # Iniciar nuevo juego modo 2.0
-                            self.game = self.adapter
-                            self.game.newGame()
-                            self.startGame()
-                        elif 316 <= mouse_pos[1] < 385:
-                            self.menu = False
-                            self.handleLoadEvents()
-                        elif 400 <= mouse_pos[1] < 469:
-                            # Mostrar Puntajes
-                            self.menu = False
-                            self.handleScoresEvents()                        
-                        elif 484 <= mouse_pos[1] < 553:
-                            self.menu = False
-                            self.showCredits()
+                    if buttonPlay.rect.collidepoint(mouse_pos):
+                        # Iniciar nuevo juego
+                        self.game = self.gameController
+                        self.game.newGame()
+                        self.startGame()
+                    elif buttonPlay2.rect.collidepoint(mouse_pos):
+                        # Iniciar nuevo juego modo 2.0
+                        self.game = self.adapter
+                        self.game.newGame()
+                        self.startGame()
+                    elif buttonLoad.rect.collidepoint(mouse_pos):
+                        self.menu = False
+                        self.handleLoadEvents()
+                    elif buttonScore.rect.collidepoint(mouse_pos):
+                        # Mostrar Puntajes
+                        self.menu = False
+                        self.handleScoresEvents()
+                    elif buttonCredits.rect.collidepoint(mouse_pos):
+                        self.menu = False
+                        self.showCredits()
             
             # Dibujar los botones en el menú
             self.view.drawMenu(self.buttons)
@@ -137,9 +157,9 @@ class Controller:
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonResume = Button(91, 163, image_path("btn_continue.png"), 280, 69)
-        buttonSave = Button(91, 252, image_path("btn_save.png"), 280, 69)
-        buttonMenu = Button(91, 341, image_path("btn_menu.png"), 280, 69)
+        buttonResume = self._create_button(BTN_PAUSE_RESUME, "btn_continue.png")
+        buttonSave = self._create_button(BTN_PAUSE_SAVE, "btn_save.png")
+        buttonMenu = self._create_button(BTN_PAUSE_MENU, "btn_menu.png")
         
         self.buttons.add([buttonResume, buttonSave, buttonMenu])
     
@@ -157,17 +177,15 @@ class Controller:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if 91 <= mouse_pos[0] < 371:
-                    if 163 <= mouse_pos[1] < 232:
-                        # Volver al juego
-                        self.game.paused = False
-                    elif 252 <= mouse_pos[1] < 321:
-                        # Guardar Partida
-                        self.game.saveGame()
-                        pass
-                    elif 341 <= mouse_pos[1] < 410:
-                        # Volver al menu
-                        self.menu = True
+                if buttonResume.rect.collidepoint(mouse_pos):
+                    # Volver al juego
+                    self.game.paused = False
+                elif buttonSave.rect.collidepoint(mouse_pos):
+                    # Guardar Partida
+                    self.game.saveGame()
+                elif buttonMenu.rect.collidepoint(mouse_pos):
+                    # Volver al menu
+                    self.menu = True
 
         self.view.drawPaused(self.buttons)
 
@@ -178,8 +196,8 @@ class Controller:
 
         # Creacion de los botones del GameOver
         self.buttons.remove(self.buttons)
-        buttonYes = Button(33, 375, image_path("btn_yes.png"), 187, 69)
-        buttonNo = Button(241, 375, image_path("btn_no.png"), 187, 69)
+        buttonYes = self._create_button(BTN_GAMEOVER_YES, "btn_yes.png")
+        buttonNo = self._create_button(BTN_GAMEOVER_NO, "btn_no.png")
         self.buttons.add([buttonYes, buttonNo])
             
         # Escucha si el mouse esta sobre algun boton
@@ -196,26 +214,25 @@ class Controller:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if 375 <= mouse_pos[1] < 444:
-                    if 33 <= mouse_pos[0] < 220:
-                        # Jugar de nuevo
-                        self.audio.stopChannel()
-                        self.menu = True
-                        self.game.newGame()
-                        self.startGame()
-                    elif 241 <= mouse_pos[0] < 428:
-                        # Salir al menu
-                        self.audio.stopChannel()
-                        self.menu = True
+                if buttonYes.rect.collidepoint(mouse_pos):
+                    # Jugar de nuevo
+                    self.audio.stopChannel()
+                    self.menu = True
+                    self.game.newGame()
+                    self.startGame()
+                elif buttonNo.rect.collidepoint(mouse_pos):
+                    # Salir al menu
+                    self.audio.stopChannel()
+                    self.menu = True
         
         self.view.drawGameOver(self.buttons)
 
     def handleLoadEvents(self):
         #Creacion de los botones del Load
         self.buttons.remove(self.buttons)
-        buttonLoad1 = Button(91, 120, image_path("btn_play1.png"), 255, 69)
-        buttonLoad2 = Button(91, 209, image_path("btn_play2.png"), 255, 69)
-        buttonBack = Button(91, 298, image_path("btn_back.png"), 255, 69)
+        buttonLoad1 = self._create_button(BTN_LOAD_1, "btn_play1.png")
+        buttonLoad2 = self._create_button(BTN_LOAD_2, "btn_play2.png")
+        buttonBack = self._create_button(BTN_LOAD_BACK, "btn_back.png")
         self.buttons.add([buttonLoad1, buttonLoad2, buttonBack])
 
         
@@ -236,19 +253,18 @@ class Controller:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Escucha si el usuario presiono algun boton
                     mouse_pos = pygame.mouse.get_pos()
-                    if 91 <= mouse_pos[0] < 346:
-                        if 120 <= mouse_pos[1] < 189:
-                            # Cargar Partida 1.0
-                            self.game = self.gameController
-                            self.game.loadGame()
-                            self.startGame()
-                        elif 209 <= mouse_pos[1] < 278:
-                            # Cargar Partida 2.0
-                            self.game = self.adapter
-                            self.game.loadGame()
-                            self.startGame()
-                        elif 298 <= mouse_pos[1] < 367:
-                            self.menu = True
+                    if buttonLoad1.rect.collidepoint(mouse_pos):
+                        # Cargar Partida 1.0
+                        self.game = self.gameController
+                        self.game.loadGame()
+                        self.startGame()
+                    elif buttonLoad2.rect.collidepoint(mouse_pos):
+                        # Cargar Partida 2.0
+                        self.game = self.adapter
+                        self.game.loadGame()
+                        self.startGame()
+                    elif buttonBack.rect.collidepoint(mouse_pos):
+                        self.menu = True
 
             self.view.drawLoad(self.buttons)
 
@@ -259,7 +275,7 @@ class Controller:
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonBack = Button(104, 413, image_path("btn_back.png"), 255, 69)
+        buttonBack = self._create_button(BTN_BACK, "btn_back.png")
         
         self.buttons.add([buttonBack])
 
@@ -277,10 +293,8 @@ class Controller:
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-                    if 413 <= mouse_pos[1] < 482:
-                        if 125 <= mouse_pos[0] < 379:
-                            self.menu = True
+                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
+                        self.menu = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE: 
                         self.menu = True
@@ -288,8 +302,8 @@ class Controller:
             # Ordenar los puntajes de mayor a menor
             sorted_scores = sorted(self.scores, reverse=True)
 
-            # Obtener los 5 puntajes
-            p1, p2, p3, p4, p5 = sorted_scores[:5]
+            # Obtener los mejores puntajes
+            p1, p2, p3, p4, p5 = sorted_scores[:MAX_SCORES]
 
             self.view.drawScores(self.buttons, p1, p2, p3, p4, p5)
 
@@ -300,7 +314,7 @@ class Controller:
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
-        buttonBack = Button(104, 413, image_path("btn_back.png"), 255, 69)
+        buttonBack = self._create_button(BTN_BACK, "btn_back.png")
         
         self.buttons.add([buttonBack])
 
@@ -318,14 +332,12 @@ class Controller:
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-                    if 413 <= mouse_pos[1] < 482:
-                        if 125 <= mouse_pos[0] < 379:
-                            self.menu = True
+                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
+                        self.menu = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.menu = True
-                           
+                            
             self.view.drawCredits(self.buttons)
 
     
@@ -347,7 +359,7 @@ class Controller:
                 data = pickle.load(f)
             self.scores = data['scores']
         except (FileNotFoundError, KeyError, pickle.UnpicklingError):
-            self.scores = [0] * 5
+            self.scores = [0] * MAX_SCORES
 
     def updateScores(self, new_score):
         """

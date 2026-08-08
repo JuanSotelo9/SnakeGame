@@ -1,32 +1,55 @@
-class GameControllerInterface:
+from abc import ABC, abstractmethod
 
-    def newGame(self):
-        pass
-    
-    def startGame(self):
-        pass
 
-    def setSpeeds(self, event, key):
-        pass
+class GameControllerInterface(ABC):
+    """Contrato que deben implementar los controladores de juego."""
 
-    def addBody(self):
-        pass
+    @abstractmethod
+    def newGame(self) -> None:
+        """Inicia una partida nueva."""
+        ...
 
+    @abstractmethod
+    def startGame(self) -> None:
+        """Ejecuta un frame de la lógica del juego."""
+        ...
+
+    @abstractmethod
+    def setSpeeds(self, event) -> None:
+        """Actualiza la dirección del snake según el evento de teclado."""
+        ...
+
+    @abstractmethod
+    def addBody(self) -> None:
+        """Agrega una parte al cuerpo del snake."""
+        ...
+
+    @abstractmethod
     def createFruit(self, type):
-        pass
+        """Crea una fruta en una posición disponible."""
+        ...
 
-    def itsAvailable(self, x, y):
-        pass
+    @abstractmethod
+    def itsAvailable(self, x, y) -> bool:
+        """Comprueba si la posición (x, y) está libre."""
+        ...
 
-    def moveSnake(self):
-        pass
+    @abstractmethod
+    def moveSnake(self) -> None:
+        """Mueve todas las partes del snake."""
+        ...
 
-    def itsGameOver(self):
-        pass
+    @abstractmethod
+    def itsGameOver(self) -> bool:
+        """Comprueba si se produjo un game over."""
+        ...
 
-    def saveGame(self):
-        pass
+    @abstractmethod
+    def saveGame(self) -> None:
+        """Guarda el estado actual de la partida."""
+        ...
 
-    def loadGame(self):
-        pass
-
+    @abstractmethod
+    def loadGame(self) -> None:
+        """Carga el estado guardado de la partida."""
+        ...
