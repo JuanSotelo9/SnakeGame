@@ -18,12 +18,19 @@ class Button(pygame.sprite.Sprite):
             height(int): Altura del boton
         """
         pygame.sprite.Sprite.__init__(self)
-        self.normalImage = pygame.image.load(image).subsurface((0, 0, weight, height))
-        self.hoverImage = pygame.image.load(image).subsurface((0, height, weight, height))
+        sheet = pygame.image.load(image)
+        self.normalImage = sheet.subsurface((0, 0, weight, height))
+        self.hoverImage = sheet.subsurface((0, height, weight, height))
         self.image = self.normalImage
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+    def is_clicked(self, pos) -> bool:
+        """
+        Comprueba si la posición dada está dentro del botón.
+        """
+        return self.rect.collidepoint(pos)
 
     def itsNormal(self):
         """

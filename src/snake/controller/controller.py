@@ -75,24 +75,24 @@ class Controller:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Escucha si el usuario presiono algun boton
                     mouse_pos = pygame.mouse.get_pos()
-                    if buttonPlay.rect.collidepoint(mouse_pos):
+                    if buttonPlay.is_clicked(mouse_pos):
                         # Iniciar nuevo juego
                         self.game = self.gameController
                         self.game.newGame()
                         self.startGame()
-                    elif buttonPlay2.rect.collidepoint(mouse_pos):
+                    elif buttonPlay2.is_clicked(mouse_pos):
                         # Iniciar nuevo juego modo 2.0
                         self.game = self.adapter
                         self.game.newGame()
                         self.startGame()
-                    elif buttonLoad.rect.collidepoint(mouse_pos):
+                    elif buttonLoad.is_clicked(mouse_pos):
                         self.menu = False
                         self.handleLoadEvents()
-                    elif buttonScore.rect.collidepoint(mouse_pos):
+                    elif buttonScore.is_clicked(mouse_pos):
                         # Mostrar Puntajes
                         self.menu = False
                         self.handleScoresEvents()
-                    elif buttonCredits.rect.collidepoint(mouse_pos):
+                    elif buttonCredits.is_clicked(mouse_pos):
                         self.menu = False
                         self.showCredits()
 
@@ -171,13 +171,13 @@ class Controller:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if buttonResume.rect.collidepoint(mouse_pos):
+                if buttonResume.is_clicked(mouse_pos):
                     # Volver al juego
                     self.game.paused = False
-                elif buttonSave.rect.collidepoint(mouse_pos):
+                elif buttonSave.is_clicked(mouse_pos):
                     # Guardar Partida
                     self.game.saveGame()
-                elif buttonMenu.rect.collidepoint(mouse_pos):
+                elif buttonMenu.is_clicked(mouse_pos):
                     # Volver al menu
                     self.menu = True
 
@@ -208,13 +208,13 @@ class Controller:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if buttonYes.rect.collidepoint(mouse_pos):
+                if buttonYes.is_clicked(mouse_pos):
                     # Jugar de nuevo
                     self.audio.stopChannel()
                     self.menu = True
                     self.game.newGame()
                     self.startGame()
-                elif buttonNo.rect.collidepoint(mouse_pos):
+                elif buttonNo.is_clicked(mouse_pos):
                     # Salir al menu
                     self.audio.stopChannel()
                     self.menu = True
@@ -245,17 +245,17 @@ class Controller:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Escucha si el usuario presiono algun boton
                     mouse_pos = pygame.mouse.get_pos()
-                    if buttonLoad1.rect.collidepoint(mouse_pos):
+                    if buttonLoad1.is_clicked(mouse_pos):
                         # Cargar Partida 1.0
                         self.game = self.gameController
                         self.game.loadGame()
                         self.startGame()
-                    elif buttonLoad2.rect.collidepoint(mouse_pos):
+                    elif buttonLoad2.is_clicked(mouse_pos):
                         # Cargar Partida 2.0
                         self.game = self.adapter
                         self.game.loadGame()
                         self.startGame()
-                    elif buttonBack.rect.collidepoint(mouse_pos):
+                    elif buttonBack.is_clicked(mouse_pos):
                         self.menu = True
 
             self.view.drawLoad(self.buttons)
@@ -285,7 +285,7 @@ class Controller:
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
+                    if buttonBack.is_clicked(pygame.mouse.get_pos()):
                         self.menu = True
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.menu = True
@@ -323,7 +323,7 @@ class Controller:
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
+                    if buttonBack.is_clicked(pygame.mouse.get_pos()):
                         self.menu = True
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.menu = True

@@ -34,23 +34,27 @@ class View:
     def __init__(self):
         """
         Constructor de la clase View que inicializa los atributos:
-        display, clock, background, font
+        display, clock, font y las imágenes cargadas una sola vez.
         """
         self.tamaño = (WINDOW_WIDTH, GAME_HEIGHT)
         self.display = pygame.display.set_mode(self.tamaño)
         pygame.display.set_caption("Snake Game")
         self.clock = pygame.time.Clock()
-        self.background = None
         self.font = pygame.font.Font(None, HUD_FONT_SIZE)
+
+        self.menu_image = pygame.image.load(image_path("CULEBRA.jpg"))
+        self.background_image = pygame.image.load(image_path("background.png"))
+        self.game_over_image = pygame.image.load(image_path("bg_game_over.png"))
+        self.pause_image = pygame.image.load(image_path("bg_pause.png"))
+        self.scores_image = pygame.image.load(image_path("bg_scores.png"))
 
     def drawMenu(self, buttons):
         """
         Este metodo dibuja el menu
         """
         self.ChooseTam(MENU_HEIGHT)
-        image = pygame.image.load(image_path("CULEBRA.jpg"))
         self.display.fill(MENU_BACKGROUND_COLOR)
-        self.display.blit(image, MENU_IMAGE_POS)
+        self.display.blit(self.menu_image, MENU_IMAGE_POS)
         buttons.draw(self.display)
         pygame.display.flip()
 
@@ -64,9 +68,7 @@ class View:
         contText = self.font.render("Fruits: " + str(contFruit), True, HUD_TEXT_COLOR)
         self.display.fill(WHITE)
 
-        self.background = pygame.image.load(image_path("background.png"))
-
-        self.display.blit(self.background, (0, 0))
+        self.display.blit(self.background_image, (0, 0))
         self.display.blit(scoreText, SCORE_TEXT_POS)
         self.display.blit(speedText, SPEED_TEXT_POS)
         self.display.blit(contText, FRUITS_TEXT_POS)
@@ -83,8 +85,7 @@ class View:
         """
         self.ChooseTam(GAME_HEIGHT)
         self.display.fill(WHITE)
-        self.background = pygame.image.load(image_path("bg_game_over.png"))
-        self.display.blit(self.background, (0, 0))
+        self.display.blit(self.game_over_image, (0, 0))
         buttons.draw(self.display)
         pygame.display.flip()
 
@@ -94,8 +95,7 @@ class View:
         """
         self.ChooseTam(GAME_HEIGHT)
         self.display.fill(WHITE)
-        self.background = pygame.image.load(image_path("bg_pause.png"))
-        self.display.blit(self.background, (0, 0))
+        self.display.blit(self.pause_image, (0, 0))
         buttons.draw(self.display)
         pygame.display.flip()
 
@@ -111,12 +111,11 @@ class View:
         """
         Mostrar los puntajes en una ventana separada.
         """
-        self.background = pygame.image.load(image_path("bg_scores.png"))
         self.ChooseTam(GAME_HEIGHT)
         scores = (p1, p2, p3, p4, p5)
         self.display.fill(WHITE)
 
-        self.display.blit(self.background, (0, 0))
+        self.display.blit(self.scores_image, (0, 0))
 
         for i, score in enumerate(scores):
             text = self.font.render(f"Score {i + 1}: {score}", True, SCORE_TEXT_COLOR)
