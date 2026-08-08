@@ -2,7 +2,6 @@ import pickle
 import sys
 
 import pygame
-
 from config import (
     BTN_BACK,
     BTN_GAMEOVER_NO,
@@ -20,16 +19,16 @@ from config import (
     BTN_PAUSE_SAVE,
     MAX_SCORES,
 )
-from controller.AudioController import AudioController
-from controller.GameController import GameController
-from controller.gameControllerAdapter import GameControllerAdapter
-from model.Button import Button
+from controller.audio_controller import AudioController
+from controller.game_controller import GameController
+from controller.game_controller_adapter import GameControllerAdapter
+from model.button import Button
 from paths import data_path, image_path, sound_path
 
-class Controller:
 
+class Controller:
     def __init__(self, view) -> None:
-        
+
         self.audio = AudioController()
         self.view = view
         self.gameController = GameController(self.view, self.audio)
@@ -47,13 +46,11 @@ class Controller:
 
     def handleMenuEvents(self):
         """
-            Esta clase maneja los eventos de la pantalla del menú
+        Esta clase maneja los eventos de la pantalla del menú
         """
         self.audio.repMusic(self.musicMenu)
         self.loadScores()
         while True:
-
-
             # Creacion de los botones del menú
             self.buttons.remove(self.buttons)
             buttonPlay = self._create_button(BTN_MENU_PLAY, "btn_play1.png")
@@ -62,14 +59,14 @@ class Controller:
             buttonScore = self._create_button(BTN_MENU_SCORE, "btn_score.png")
             buttonCredits = self._create_button(BTN_MENU_CREDITS, "btn_credits.png")
             self.buttons.add([buttonPlay, buttonPlay2, buttonLoad, buttonScore, buttonCredits])
-            
+
             # Escucha si el mouse esta sobre algun boton
             for button in self.buttons:
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
                     button.itsHover()
                 else:
                     button.itsNormal()
-            
+
             # Escucha los eventos del teclado y mouse
             for event in pygame.event.get():
                 # Cierra el juego
@@ -98,31 +95,30 @@ class Controller:
                     elif buttonCredits.rect.collidepoint(mouse_pos):
                         self.menu = False
                         self.showCredits()
-            
+
             # Dibujar los botones en el menú
             self.view.drawMenu(self.buttons)
-    
+
     def handleGameEvents(self):
         # Escucha los eventos del teclado y mouse
         for event in pygame.event.get():
             # Cierra el juego
-            if(event.type == pygame.QUIT):
+            if event.type == pygame.QUIT:
                 self.closeGame()
-            if(event.type == pygame.KEYDOWN):
+            if event.type == pygame.KEYDOWN:
                 # Escucha si se puso en pausa
-                if(event.key == pygame.K_ESCAPE):
+                if event.key == pygame.K_ESCAPE:
                     self.game.paused = True
 
                 # Escucha si se movio el Snake
                 else:
                     self.game.setSpeeds(event)
-                
+
         self.game.key = False
 
     def startGame(self):
-        
         """
-            Este es el metodo donde esta la logica del juego
+        Este es el metodo donde esta la logica del juego
         """
 
         # Se da inicio a la musica del juego
@@ -131,28 +127,26 @@ class Controller:
         self.menu = False
 
         # Game loop
-        while(not self.game.gameOver and not self.menu):
+        while not self.game.gameOver and not self.menu:
             if self.game.paused != True:
                 self.handleGameEvents()
                 self.game.startGame()
             else:
                 self.handlePausedEvents()
-        
+
         pygame.mixer.music.stop()
-        if(self.game.gameOver == True):
+        if self.game.gameOver == True:
             self.updateScores(self.gameController.score)
-            self.audio.repSound(pygame.mixer.Sound(sound_path("gameOver.mp3")))   
+            self.audio.repSound(pygame.mixer.Sound(sound_path("gameOver.mp3")))
 
         while not self.menu:
-            
             self.handleGameOverEvents()
-        
+
         self.audio.repMusic(self.musicMenu)
 
     def handlePausedEvents(self):
-
         """
-            Este metodo se encarga del manejo de los eventos del menu de pausa
+        Este metodo se encarga del manejo de los eventos del menu de pausa
         """
 
         # Creacion de los botones del menú
@@ -160,9 +154,9 @@ class Controller:
         buttonResume = self._create_button(BTN_PAUSE_RESUME, "btn_continue.png")
         buttonSave = self._create_button(BTN_PAUSE_SAVE, "btn_save.png")
         buttonMenu = self._create_button(BTN_PAUSE_MENU, "btn_menu.png")
-        
+
         self.buttons.add([buttonResume, buttonSave, buttonMenu])
-    
+
         # Escucha si el mouse esta sobre algun boton
         for button in self.buttons:
             if button.rect.collidepoint(pygame.mouse.get_pos()):
@@ -172,7 +166,7 @@ class Controller:
 
         # Escucha los eventos del teclado
         for event in pygame.event.get():
-            #Cierra el juego
+            # Cierra el juego
             if event.type == pygame.QUIT:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -191,7 +185,7 @@ class Controller:
 
     def handleGameOverEvents(self):
         """
-            Este metodo se encarga del manejo de los eventos del menu de pausa
+        Este metodo se encarga del manejo de los eventos del menu de pausa
         """
 
         # Creacion de los botones del GameOver
@@ -199,7 +193,7 @@ class Controller:
         buttonYes = self._create_button(BTN_GAMEOVER_YES, "btn_yes.png")
         buttonNo = self._create_button(BTN_GAMEOVER_NO, "btn_no.png")
         self.buttons.add([buttonYes, buttonNo])
-            
+
         # Escucha si el mouse esta sobre algun boton
         for button in self.buttons:
             if button.rect.collidepoint(pygame.mouse.get_pos()):
@@ -209,7 +203,7 @@ class Controller:
 
         # Escucha los eventos del teclado
         for event in pygame.event.get():
-            #Cierra el juego
+            # Cierra el juego
             if event.type == pygame.QUIT:
                 self.closeGame()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -224,18 +218,16 @@ class Controller:
                     # Salir al menu
                     self.audio.stopChannel()
                     self.menu = True
-        
+
         self.view.drawGameOver(self.buttons)
 
     def handleLoadEvents(self):
-        #Creacion de los botones del Load
+        # Creacion de los botones del Load
         self.buttons.remove(self.buttons)
         buttonLoad1 = self._create_button(BTN_LOAD_1, "btn_play1.png")
         buttonLoad2 = self._create_button(BTN_LOAD_2, "btn_play2.png")
         buttonBack = self._create_button(BTN_LOAD_BACK, "btn_back.png")
         self.buttons.add([buttonLoad1, buttonLoad2, buttonBack])
-
-        
 
         # Escucha los eventos del teclado
         while not self.menu:
@@ -245,9 +237,9 @@ class Controller:
                     button.itsHover()
                 else:
                     button.itsNormal()
-                    
+
             for event in pygame.event.get():
-                #Cierra el juego
+                # Cierra el juego
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -270,52 +262,13 @@ class Controller:
 
     def handleScoresEvents(self):
         """
-            Este metodo se encarga del manejo de los eventos del menu de scores
+        Este metodo se encarga del manejo de los eventos del menu de scores
         """
 
         # Creacion de los botones del menú
         self.buttons.remove(self.buttons)
         buttonBack = self._create_button(BTN_BACK, "btn_back.png")
-        
-        self.buttons.add([buttonBack])
 
-        while(not self.menu):
-            # Escucha si el mouse esta sobre algun boton
-            for button in self.buttons:
-                if button.rect.collidepoint(pygame.mouse.get_pos()):
-                    button.itsHover()
-                else:
-                    button.itsNormal()
-
-            # Escucha los eventos del teclado
-            for event in pygame.event.get():
-                #Cierra el juego
-                if event.type == pygame.QUIT:
-                    self.closeGame()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
-                        self.menu = True
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE: 
-                        self.menu = True
-            
-            # Ordenar los puntajes de mayor a menor
-            sorted_scores = sorted(self.scores, reverse=True)
-
-            # Obtener los mejores puntajes
-            p1, p2, p3, p4, p5 = sorted_scores[:MAX_SCORES]
-
-            self.view.drawScores(self.buttons, p1, p2, p3, p4, p5)
-
-    def showCredits(self): 
-        """
-            Este metodo se encarga del manejo de los eventos del menu de scores
-        """
-
-        # Creacion de los botones del menú
-        self.buttons.remove(self.buttons)
-        buttonBack = self._create_button(BTN_BACK, "btn_back.png")
-        
         self.buttons.add([buttonBack])
 
         while not self.menu:
@@ -328,26 +281,61 @@ class Controller:
 
             # Escucha los eventos del teclado
             for event in pygame.event.get():
-                #Cierra el juego
+                # Cierra el juego
                 if event.type == pygame.QUIT:
                     self.closeGame()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
                         self.menu = True
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.menu = True
+
+            # Ordenar los puntajes de mayor a menor
+            sorted_scores = sorted(self.scores, reverse=True)
+
+            # Obtener los mejores puntajes
+            p1, p2, p3, p4, p5 = sorted_scores[:MAX_SCORES]
+
+            self.view.drawScores(self.buttons, p1, p2, p3, p4, p5)
+
+    def showCredits(self):
+        """
+        Este metodo se encarga del manejo de los eventos del menu de scores
+        """
+
+        # Creacion de los botones del menú
+        self.buttons.remove(self.buttons)
+        buttonBack = self._create_button(BTN_BACK, "btn_back.png")
+
+        self.buttons.add([buttonBack])
+
+        while not self.menu:
+            # Escucha si el mouse esta sobre algun boton
+            for button in self.buttons:
+                if button.rect.collidepoint(pygame.mouse.get_pos()):
+                    button.itsHover()
+                else:
+                    button.itsNormal()
+
+            # Escucha los eventos del teclado
+            for event in pygame.event.get():
+                # Cierra el juego
+                if event.type == pygame.QUIT:
+                    self.closeGame()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if buttonBack.rect.collidepoint(pygame.mouse.get_pos()):
                         self.menu = True
-                            
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.menu = True
+
             self.view.drawCredits(self.buttons)
 
-    
-
     def saveScores(self):
-        data = {'scores' : self.scores}
+        data = {"scores": self.scores}
 
         file = data_path("scores.pkl")
 
-        with open(file, 'wb') as f:
+        with open(file, "wb") as f:
             pickle.dump(data, f)
 
     def loadScores(self):
@@ -355,9 +343,9 @@ class Controller:
         file = data_path("scores.pkl")
 
         try:
-            with open(file, 'rb') as f:
+            with open(file, "rb") as f:
                 data = pickle.load(f)
-            self.scores = data['scores']
+            self.scores = data["scores"]
         except (FileNotFoundError, KeyError, pickle.UnpicklingError):
             self.scores = [0] * MAX_SCORES
 

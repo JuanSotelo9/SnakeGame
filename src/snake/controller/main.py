@@ -1,6 +1,5 @@
 import pygame
-
-from controller.Controller import Controller
+from controller.controller import Controller
 from view.view import View
 
 

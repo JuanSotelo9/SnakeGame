@@ -1,0 +1,16 @@
+[project]
+name = "snake-game"
+version = "1.0.0"
+description = "Juego de la serpiente (Snake) en Python con Pygame, con arquitectura MVC y dos modos de juego."
+requires-python = ">=3.10"
+dependencies = [
+    "pygame>=2.0,<3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src/snake"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
