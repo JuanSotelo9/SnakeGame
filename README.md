@@ -63,7 +63,10 @@ ruff format --check src tests   # verifica el formato
 ```
 
 Los tests usan los drivers `dummy` de SDL, por lo que se ejecutan sin necesidad
-de pantalla ni audio. El CI (GitHub Actions) corre estos pasos en cada push.
+de pantalla ni audio. La suite incluye tests unitarios (lógica de `GameController`
+y botones) y tests de integración que simulan inputs del teclado con
+`pygame.event.post` y verifican el estado del juego a lo largo del bucle de juego.
+El CI (GitHub Actions) corre estos pasos en cada push.
 
 ## Estructura del proyecto
 
